@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>
+            Notifications
+            {% if unseen_count > 0 %}
+            <span class="badge bg-danger ms-2">{{ unseen_count }} unread</span>
+            {% endif %}
+        </h2>
+        
+        {% if unseen_count > 0 %}
+        <a href="{{ url_for('mark_all_notifications_seen') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-check-all"></i> Mark All as Read
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="list-group">
+        {% for notification in notifications %}
+        <a href="{{ url_for('mark_notification_seen', notification_id=notification._id, redirect_url=notification.link) }}" 
+           class="list-group-item list-group-item-action 
+                  {% if notification.type == 'moderator_assigned' %}list-group-item-primary
+                  {% elif notification.type == 'post_approved' %}list-group-item-success
+                  {% elif notification.type == 'post_updated' %}list-group-item-warning
+                  {% elif notification.type == 'post_deleted' %}list-group-item-danger
+                  {% endif %}
+                  {% if not notification.seen %}fw-bold{% endif %}">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    {% if not notification.seen %}
+                    <span class="badge bg-primary me-2">NEW</span>
+                    {% endif %}
+                    {{ notification.message }}
+                    <span class="badge bg-secondary ms-2">
+                        {{ notification.type|replace('_', ' ')|title }}
+                    </span>
+                </div>
+                <small class="text-muted">
+                    {{ notification.timestamp|datetimeformat('%b %d, %Y %I:%M %p') }}
+                </small>
+            </div>
+        </a>
+        {% else %}
+        <div class="list-group-item">
+            <div class="text-center text-muted py-3">
+                No notifications yet - everything's quiet! 🤫
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination Controls -->
+    <nav aria-label="Page navigation" class="mt-3">
+        <ul class="pagination justify-content-center">
+            {% if page > 1 %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('notifications_page', page=page-1) }}">Previous</a></li>
+            {% endif %}
+            
+            {% for p in range(1, (total_notifications // per_page) + 2) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('notifications_page', page=p) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if page < (total_notifications // per_page) + 1 %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('notifications_page', page=page+1) }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+<style>
+    .list-group-item {
+        transition: all 0.2s ease;
+    }
+    .list-group-item:hover {
+        transform: translateX(2px);
+    }
+    .badge.bg-primary {
+        font-size: 0.7em;
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}

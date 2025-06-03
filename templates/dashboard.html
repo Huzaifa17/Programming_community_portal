@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Programming Community{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Dashboard</h1>
+<!-- User Activity and Traffic Section -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">📊 User Activity (Last 7 Days)</h5>
+                <canvas id="userActivityChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">🚦 Traffic Overview</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">Last 3 Hours: <span id="traffic-3h">{{ traffic_data.last_3h }}</span></li>
+                    <li class="list-group-item">Last 24 Hours: <span id="traffic-24h">{{ traffic_data.last_24h }}</span></li>
+                    <li class="list-group-item">Last 7 Days: <span id="traffic-7d">{{ traffic_data.last_7d }}</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Section -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">📈 Post Analytics</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">Approved: {{ post_stats.approved }}</li>
+                    <li class="list-group-item">Pending: {{ post_stats.pending }}</li>
+                    <li class="list-group-item">Rejected: {{ post_stats.rejected }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">👤 User Activity</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">Comments: {{ user_activity.comments }}</li>
+                    <li class="list-group-item">Upvotes: {{ user_activity.upvotes }}</li>
+                    <li class="list-group-item">Downvotes: {{ user_activity.downvotes }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approved Topics Section (Collapsible) -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#approvedTopicsCollapse">
+                📚 Approved Topics
+            </button>
+        </h5>
+    </div>
+    <div id="approvedTopicsCollapse" class="collapse show">
+        <div class="card-body">
+            <ul class="list-group">
+                {% for topic in approved_topics %}
+                    <li class="list-group-item">
+                        <a href="{{ url_for('view_topic', post_id=topic._id) }}">{{ topic.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <!-- Pagination Controls for Approved Topics -->
+            <nav aria-label="Page navigation for Approved Topics">
+                <ul class="pagination mt-3">
+                    {% if topics_page > 1 %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('dashboard', topics_page=topics_page-1, profiles_page=profiles_page) }}">Previous</a></li>
+                    {% endif %}
+                    
+                    {% for p in range(1, (total_topics // topics_per_page) + 2) %}
+                    <li class="page-item {% if p == topics_page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('dashboard', topics_page=p, profiles_page=profiles_page) }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if topics_page < (total_topics // topics_per_page) + 1 %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('dashboard', topics_page=topics_page+1, profiles_page=profiles_page) }}">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- User Profiles Section (Collapsible) -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#userProfilesCollapse">
+                👥 User Profiles
+            </button>
+        </h5>
+    </div>
+    <div id="userProfilesCollapse" class="collapse show">
+        <div class="card-body">
+            <ul class="list-group">
+                {% for user in all_users %}
+                    <li class="list-group-item">
+                        <a href="{{ url_for('profile', username=user.username) }}">
+                            {{ user.username }}
+                            {% if user.role == 'admin' %}
+                                <span class="badge bg-danger">Admin</span>
+                            {% elif user.role == 'moderator' %}
+                                <span class="badge bg-primary">Moderator</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <!-- Pagination Controls for User Profiles -->
+            <nav aria-label="Page navigation for User Profiles">
+                <ul class="pagination mt-3">
+                    {% if profiles_page > 1 %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('dashboard', topics_page=topics_page, profiles_page=profiles_page-1) }}">Previous</a></li>
+                    {% endif %}
+                    
+                    {% for p in range(1, (total_users // profiles_per_page) + 2) %}
+                    <li class="page-item {% if p == profiles_page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('dashboard', topics_page=topics_page, profiles_page=p) }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if profiles_page < (total_users // profiles_per_page) + 1 %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('dashboard', topics_page=topics_page, profiles_page=profiles_page+1) }}">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Section: Assign Moderator -->
+{% if is_admin() %}
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title">🔧 Admin Tools</h5>
+        <form action="{{ url_for('dashboard_assign_moderator') }}" method="POST">
+            <div class="input-group">
+                <select name="username" class="form-select" required>
+                    {% for user in all_users %}
+                        <option value="{{ user.username }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-primary" type="submit">Assign Moderator</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- Moderator Section: Approve/Reject Posts -->
+{% if is_moderator() %}
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title">🛠️ Moderator Tools</h5>
+        <form action="{{ url_for('bulk_actions') }}" method="POST">
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Select</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in pending_posts %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="post_ids" value="{{ post._id }}">
+                        </td>
+                        <td>
+                            <!-- Clickable Title -->
+                            <a href="{{ url_for('view_topic', post_id=post._id) }}" class="text-decoration-none">
+                                {{ post.title }}
+                            </a>
+                        </td>
+                        <td>
+                            <!-- Clickable Author Name -->
+                            <a href="{{ url_for('profile', username=post.username) }}" class="text-decoration-none">
+                                {{ post.username }}
+                            </a>
+                        </td>
+                        <td>{{ post.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button class="btn btn-success" type="submit" name="action" value="approve">Approve Selected</button>
+            <button class="btn btn-danger" type="submit" name="action" value="reject">Reject Selected</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- Chart.js Script -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // User Activity Chart
+        const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+        const userActivityChart = new Chart(userActivityCtx, {
+            type: 'line', // Line chart for user activity over time
+            data: {
+                labels: JSON.parse('{{ user_activity_chart.labels | tojson | safe }}'), // Parse JSON safely
+                datasets: [{
+                    label: 'Active Users',
+                    data: JSON.parse('{{ user_activity_chart.data | tojson | safe }}'), // Parse JSON safely
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

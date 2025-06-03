@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Create a New Post</h2>
+    <form method="POST" action="{{ url_for('create_post') }}" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="post-title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="post-title" name="title" required>
+        </div>
+        <div class="mb-3">
+            <label for="post-content" class="form-label">Content</label>
+            <textarea class="form-control rich-text-editor" id="post-content" name="content" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="post-attachments" class="form-label">Attachments</label>
+            <input type="file" class="form-control" id="post-attachments" name="attachments" multiple>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Post</button>
+    </form>
+</div>
+
+<!-- JavaScript for handling the Create Post button -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Create Post JavaScript loaded");
+
+        // Create Post Button
+        const createPostButton = document.querySelector('form[action*="create_post"] button[type="submit"]');
+        if (createPostButton) {
+            createPostButton.addEventListener('click', function (event) {
+                console.log("Create Post button clicked");
+                // Ensure the form is submitted
+                const form = event.target.closest('form');
+                if (form) {
+                    form.submit();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

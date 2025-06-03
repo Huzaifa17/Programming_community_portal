@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Moderator Tools - Pending Posts</h2>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <!-- Clickable Post Title -->
+                <td><a href="{{ url_for('view_post', post_id=post._id) }}" class="text-decoration-none">{{ post.title }}</a></td>
+                
+                <!-- Clickable Author Name -->
+                <td><a href="{{ url_for('profile', username=post.author.username) }}" class="text-decoration-none">{{ post.author.username }}</a></td>
+                
+                <!-- Approve/Reject Buttons -->
+                <td>
+                    <a href="{{ url_for('approve_post', post_id=post._id) }}" class="btn btn-success btn-sm">Approve</a>
+                    <a href="{{ url_for('reject_post', post_id=post._id) }}" class="btn btn-danger btn-sm">Reject</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+
+
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Moderator Tools - Pending Posts</h2>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <!-- Clickable Post Title -->
+                <td>
+                    <a href="{{ url_for('view_post', post_id=post._id) }}" class="text-decoration-none">
+                        {{ post.title }}
+                    </a>
+                </td>
+                
+                <!-- Clickable Author Name -->
+                <td>
+                    <a href="{{ url_for('profile', username=post.author.username) }}" class="text-decoration-none">
+                        {{ post.author.username }}
+                    </a>
+                </td>
+                
+                <!-- Approve/Reject Buttons -->
+                <td>
+                    <a href="{{ url_for('approve_post', post_id=post._id) }}" class="btn btn-success btn-sm">Approve</a>
+                    <a href="{{ url_for('reject_post', post_id=post._id) }}" class="btn btn-danger btn-sm">Reject</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

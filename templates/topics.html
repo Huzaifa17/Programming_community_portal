@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Topics</h1>
+    <ul class="post-list">
+        {% for topic in topics %}
+            <li class="post-item">
+                <h3><a href="{{ url_for('view_topic', post_id=topic._id) }}">{{ topic.title }}</a></h3>
+                <p>{{ topic.content }}</p>
+                <p>Upvotes: {{ topic.upvotes }} | Downvotes: {{ topic.downvotes }}</p>
+                <p>Attachments:</p>
+                <ul>
+                    {% for url in topic.attachment_urls %}
+                        <li><a href="{{ url }}" target="_blank">{{ url }}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

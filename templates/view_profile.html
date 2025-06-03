@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ user.username }}'s Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>{{ user.username }}'s Profile</h1>
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="user-info">
+            <h2>User Information</h2>
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Role:</strong> {{ user.role }}</p>
+        </div>
+
+        <div class="user-posts">
+            <h2>Posts</h2>
+            {% for post in posts %}
+            <div class="post">
+                <h3><a href="{{ url_for('view_post', post_id=post._id) }}">{{ post.title }}</a></h3>
+                <p>{{ post.content }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>

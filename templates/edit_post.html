@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Post - Programming Community{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <!-- Header with larger font size -->
+                <div class="card-header bg-white px-3 py-2">
+                    <h1 class="mb-0 text-black display-6">Edit Post</h1>  <!-- Larger heading size -->
+                </div>
+                <!-- Body with reduced top padding -->
+                <div class="card-body pt-2">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control form-control-lg" id="title" name="title" 
+                                   value="{{ post.title }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Content</label>
+                            <textarea class="form-control" id="content" name="content" 
+                                      rows="15" required>{{ post.content }}</textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="attachments" class="form-label">Attachments</label>
+                            <input class="form-control" type="file" id="attachments" 
+                                   name="attachments" multiple>
+                            <div class="form-text">You can upload multiple files (images, documents, etc.)</div>
+                            
+                            {% if post.attachments %}
+                            <div class="mt-3">
+                                <h6>Current Attachments:</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for attachment in post.attachments %}
+                                    <div class="border p-2 rounded">
+                                        <a href="{{ url_for('download_attachment', post_id=post._id, filename=attachment.filename) }}" 
+                                           target="_blank" class="text-decoration-none">
+                                            {{ attachment.filename }}
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger ms-2" 
+                                                onclick="confirmDeleteAttachment('{{ attachment.filename }}')">
+                                            Remove
+                                        </button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-primary px-4 py-2">
+                                <i class="bi bi-save me-2"></i>Update Post
+                            </button>
+                            <a href="{{ url_for('view_topic', post_id=post._id) }}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rich Text Editor Integration -->
+<script src="https://cdn.tiny.cloud/1/q7rshgdu24nniierova4kawwgf9wko7zcyrs8l5pwg7j2dxz/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#content',
+        plugins: 'autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+        height: 300,
+        width: '100%',
+        menubar: false,
+        branding: false
+    });
+
+    function confirmDeleteAttachment(filename) {
+        if (confirm(`Are you sure you want to remove ${filename}?`)) {
+            fetch("{{ url_for('delete_attachment', post_id=post._id) }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ filename: filename })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error deleting attachment');
+                }
+            });
+        }
+    }
+</script>
+
+<style>
+    .tox-tinymce {
+        border-radius: 0.375rem !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    .card {
+        border-radius: 0.5rem;
+    }
+    .form-control, .form-select {
+        border-radius: 0.375rem;
+    }
+    .card-header {
+        border-bottom: none !important;
+        padding-bottom: 0.5rem !important;
+    }
+    .card-body {
+        padding-top: 0.5rem !important;
+    }
+    /* Custom heading size if needed */
+    .card-header h1 {
+        font-size: 2rem;
+        font-weight: 400;
+    }
+</style>
+{% endblock %}

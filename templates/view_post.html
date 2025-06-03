@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ post.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>{{ post.title }}</h1>
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="post-content">
+            <p>{{ post.content }}</p>
+            {% if post.attachment_urls %}
+            <h3>Attachments</h3>
+            <ul>
+                {% for url in post.attachment_urls %}
+                <li><a href="{{ url }}" target="_blank">Attachment {{ loop.index }}</a></li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <div class="comments-section">
+            <h2>Comments</h2>
+            {% for comment in comments %}
+            <div class="comment">
+                <p><strong>{{ comment.username }}</strong>: {{ comment.comment }}</p>
+                {% if comment.attachment_urls %}
+                <ul>
+                    {% for url in comment.attachment_urls %}
+                    <li><a href="{{ url }}" target="_blank">Attachment {{ loop.index }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>

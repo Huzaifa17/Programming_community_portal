@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Search Results for "{{ query }}"</h1>
+    
+    {% if search_type == 'topic' %}
+        <h2>Topics</h2>
+        <ul class="post-list">
+            {% for post in results %}
+                <li class="post-item">
+                    <a href="{{ url_for('view_topic', post_id=post._id) }}">{{ post.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    
+    {% elif search_type == 'email' %}
+        <h2>Posts by {{ user.username }}</h2>
+        <ul class="post-list">
+            {% for post in results %}
+                <li class="post-item">
+                    <a href="{{ url_for('view_topic', post_id=post._id) }}">{{ post.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

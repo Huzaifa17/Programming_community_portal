@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Assign Moderator</h2>
+
+<ul>
+    {% for user in users %}
+    <li>
+        {{ user.username }} ({{ user.role }})
+        {% if user.role == 'user' %}
+        <a href="{{ url_for('assign_moderator', username=user.username) }}">Assign as Moderator</a>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

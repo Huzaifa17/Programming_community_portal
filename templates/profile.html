@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}{{ user.username }}'s Profile{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title">{{ user.username }}</h3>
+        <p>Email: {{ user.email }}</p>
+        <p>Role: {{ user.role | capitalize }}</p>
+        <p>Total Contribution: {{ total_contribution }}</p>
+        <p>Total Upvotes: {{ total_upvotes }}</p>
+        <p>Total Downvotes: {{ total_downvotes }}</p>
+
+        <a href="{{ url_for('change_password') }}" class="btn btn-warning">Change Password</a>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h3 class="card-title">Posts by {{ user.username }}</h3>
+        <ul class="list-group">
+            {% for post in posts %}
+                <li class="list-group-item">
+                    <a href="{{ url_for('view_topic', post_id=post._id) }}" class="text-decoration-none">
+                        {{ post.title }}
+                        {% if post.pinned %}
+                            <span class="badge bg-warning ms-2">Pinned</span>
+                        {% endif %}
+                    </a>
+                    <div class="small text-muted mt-1">
+                        <span class="me-3">↑ {{ post.upvotes | default(0) }}</span>
+                        <span>↓ {{ post.downvotes | default(0) }}</span>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation" class="mt-3">
+            <ul class="pagination">
+                {% if page > 1 %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('profile', username=user.username, page=page-1) }}">Previous</a></li>
+                {% endif %}
+                
+                {% for p in range(1, (total_posts // per_page) + 2) %}
+                <li class="page-item {% if p == page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('profile', username=user.username, page=p) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page < (total_posts // per_page) + 1 %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('profile', username=user.username, page=page+1) }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.content }}</p>
+    <p>Upvotes: {{ post.upvotes }} | Downvotes: {{ post.downvotes }}</p>
+    <p>Attachments:</p>
+    <ul>
+        {% for url in post.attachment_urls %}
+            <li><a href="{{ url }}" target="_blank">{{ url }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('edit_post', post_id=post._id) }}">Edit</a>
+    <a href="#" onclick="confirmDelete('{{ post._id }}')" class="delete-link">Delete</a>
+
+    <h2>Comments</h2>
+    <ul class="comment-list">
+        {% for comment in comments %}
+            <li class="comment-item">
+                <p>{{ comment.comment }}</p>
+                <p>By: {{ comment.username }}</p>
+                <p>Attachments:</p>
+                <ul>
+                    {% for url in comment.attachment_urls %}
+                        <li><a href="{{ url }}" target="_blank">{{ url }}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h3>Add a Comment</h3>
+    <form method="POST" action="{{ url_for('add_comment', post_id=post._id) }}" enctype="multipart/form-data">
+        <textarea name="comment" required></textarea><br>
+        <input type="file" name="attachments" multiple><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        function confirmDelete(postId) {
+            if (confirm("Are you sure you want to delete this post?")) {
+                window.location.href = `/delete_post/${postId}`;
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Verify OTP</h2>
+<p>Please enter the OTP sent to your email. The OTP will expire in <span id="countdown">5:00</span>.</p>
+
+<form method="POST" action="{{ url_for('verify_otp', email=email) }}">
+    <div class="form-group">
+        <label for="otp">Enter OTP</label>
+        <input type="text" class="form-control" id="otp" name="otp" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Verify OTP</button>
+</form>
+
+<!-- JavaScript for Countdown Timer -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Get the expiration time from the backend
+    const expirationTime = "{{ expiration_time }}";  // Passed from the backend
+    if (!expirationTime) {
+        document.getElementById('countdown').textContent = "Expired";
+        return;
+    }
+
+    // Convert the expiration time to a JavaScript Date object
+    const expirationDate = new Date(expirationTime).getTime();
+
+    // Update the countdown every second
+    const countdownElement = document.getElementById('countdown');
+    const countdownInterval = setInterval(function () {
+        const now = new Date().getTime();
+        const timeRemaining = expirationDate - now;
+
+        if (timeRemaining <= 0) {
+            clearInterval(countdownInterval);
+            countdownElement.textContent = "Expired";
+            return;
+        }
+
+        // Calculate minutes and seconds
+        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+        // Display the countdown
+        countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }, 1000);
+});
+</script>
+{% endblock %}

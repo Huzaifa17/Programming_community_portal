@@ -1,0 +1,45 @@
+<div class="comment card mb-3 shadow-sm" style="background-color: #ffffff;">
+    <div class="card-body pb-1">
+        <!-- Comment Content -->
+        <p class="card-text">{{ comment.comment | make_links_clickable | safe }}</p>
+        <small class="text-muted">
+            By: <a href="{{ url_for('profile', username=comment.username) }}" class="text-decoration-none">{{ comment.username }}</a>
+            on {{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}
+        </small>
+        <!-- Display Attachments -->
+        {% if comment.attachment_urls %}
+            <div class="attachments mt-2">
+                <strong>Attachments:</strong>
+                <ul class="list-unstyled">
+                    {% for url in comment.attachment_urls %}
+                        <li><a href="{{ url }}" target="_blank" class="text-decoration-none">{{ url.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <!-- Reply Button -->
+        <button class="btn btn-sm btn-outline-secondary reply-button mt-2" data-bs-toggle="collapse" data-bs-target="#reply-form-{{ comment._id }}">
+            <i class="bi bi-reply"></i> <!-- Bootstrap Icon for Reply -->
+        </button>
+        <!-- Reply Form -->
+        <div class="collapse mt-2" id="reply-form-{{ comment._id }}">
+            <form action="{{ url_for('add_comment', post_id=post._id) }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="parent_comment_id" value="{{ comment._id }}">
+                <textarea name="comment" class="form-control reply-box mb-2" placeholder="Write a reply..." rows="1" required></textarea>
+                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+            </form>
+        </div>
+        <!-- Nested Replies -->
+        {% if comment.replies %}
+            <div class="replies ms-4 mt-2">
+                {% for reply in comment.replies %}
+                    {% with comment=reply %}
+                        {% include 'comment.html' %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <!-- Thin Black Line Between Comments -->
+    <hr class="m-0">
+</div>
